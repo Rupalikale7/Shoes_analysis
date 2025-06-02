@@ -1,4 +1,4 @@
-streamlit
+strimlit
 pandas 
 matplotib
 seaborn
