@@ -3,6 +3,11 @@ import pandas as pd
 import seaborn as sb
 import matplotlib.pyplot as plt
 
+#App title
+st.title("Shoe Sales Dashboard")
+# File uploader
+uploaded_file = st.file_uploaded("SHOES.csv",type="csv")
+
 # Load and clean the data
 df = pd.read_csv("Dataset/SHOES.csv")  # Make sure path is correct relative to where you run streamlit
 df.Sales = df.Sales.replace('[,$]', '', regex=True).astype('int64')
