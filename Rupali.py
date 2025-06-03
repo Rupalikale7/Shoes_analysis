@@ -1,40 +1,89 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import seaborn as sb
+import matplotlib.pyplot as plt
 
-# Page config
-st.set_page_config(page_title="Shoe Sales Dashboard", layout="wide")
+# App title
+st.title("🥿 Shoe Sales Dashboard")
 
-# Title
-st.title("Shoe Sales Dashboard")
-st.subheader("Sales by Subsidiary in Selected Region")
+# File uploader
+uploaded_file = st.file_uploader("SHOES.csv", type="csv")
 
-# Load and clean data
-@st.cache_data
-def load_data():
-    df = pd.read_csv("Dataset/SHOES.csv")  # Adjust the path if needed
-    df['Sales'] = df['Sales'].replace('[,$]', '', regex=True).astype('int64')
-    df['Inventory'] = df['Inventory'].replace('[,$]', '', regex=True).astype('int64')
-    df['Returns'] = df['Returns'].replace('[,$]', '', regex=True).astype('int64')
-    return df
+# Load and clean the data if a file is uploaded
+if uploaded_file is not None:
+    try:
+        df = pd.read_csv(uploaded_file)
 
-df = load_data()
+        # Data cleaning
+        df['Sales'] = df['Sales'].replace('[, $]', '', regex=True).astype('int64')
+        df['Inventory'] = df['Inventory'].replace('[, $]', '', regex=True).astype('int64')
+        df['Returns'] = df['Returns'].replace('[, $]', '', regex=True).astype('int64')
 
-# Region dropdown
-regions = df['Region'].unique()
-selected_region = st.selectbox("Select a Region", regions)
+        # Region dropdown
+        regions = df['Region'].unique()
+        selected_region = st.selectbox("🌍 Select a Region", regions)
 
-# Filter data for selected region
-filtered_df = df[df['Region'] == selected_region]
+        # Filtered data
+        reg = df[df['Region'] == selected_region]
 
-# Plot Sales by Subsidiary
-fig = px.bar(
-    filtered_df,
-    x='Subsidiary',
-    y='Sales',
-    title=f"Sales in {selected_region}",
-    labels={'Sales': 'Sales ($)', 'Subsidiary': 'Subsidiary'},
-    color='Subsidiary'
-)
-fig.update_layout(xaxis_tickangle=-45)
-st.plotly_chart(fig)
+        # Display barplot
+        st.subheader(f"📊 Sales by Subsidiary in {selected_region}")
+        fig, ax = plt.subplots(figsize=(10, 5))
+        sb.barplot(x='Subsidiary', y='Sales', data=reg, ax=ax)
+        ax.set_xlabel("Subsidiary")
+        ax.set_ylabel("Sales")
+        plt.xticks(rotation=45)
+        st.pyplot(fig)
+
+        # Optional: show filtered data
+        if st.checkbox("🔍 Show data table"):
+            st.dataframe(reg)
+
+    except Exception as e:
+        st.error(f"⚠️ An error occurred while processing the file: {e}")
+else:
+    st.info("📌 Please upload your SHOES.csv file to get started.")import streamlit as st
+import pandas as pd
+import seaborn as sb
+import matplotlib.pyplot as plt
+
+# App title
+st.title("🥿 Shoe Sales Dashboard")
+
+# File uploader
+uploaded_file = st.file_uploader("SHOES.csv", type="csv")
+
+# Load and clean the data if a file is uploaded
+if uploaded_file is not None:
+    try:
+        df = pd.read_csv(uploaded_file)
+
+        # Data cleaning
+        df['Sales'] = df['Sales'].replace('[, $]', '', regex=True).astype('int64')
+        df['Inventory'] = df['Inventory'].replace('[, $]', '', regex=True).astype('int64')
+        df['Returns'] = df['Returns'].replace('[, $]', '', regex=True).astype('int64')
+
+        # Region dropdown
+        regions = df['Region'].unique()
+        selected_region = st.selectbox("🌍 Select a Region", regions)
+
+        # Filtered data
+        reg = df[df['Region'] == selected_region]
+
+        # Display barplot
+        st.subheader(f"📊 Sales by Subsidiary in {selected_region}")
+        fig, ax = plt.subplots(figsize=(10, 5))
+        sb.barplot(x='Subsidiary', y='Sales', data=reg, ax=ax)
+        ax.set_xlabel("Subsidiary")
+        ax.set_ylabel("Sales")
+        plt.xticks(rotation=45)
+        st.pyplot(fig)
+
+        # Optional: show filtered data
+        if st.checkbox("🔍 Show data table"):
+            st.dataframe(reg)
+
+    except Exception as e:
+        st.error(f"⚠️ An error occurred while processing the file: {e}")
+else:
+    st.info("📌 Please upload your SHOES.csv file to get started.")
