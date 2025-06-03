@@ -1,40 +1,38 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sb
-import matplotlib.pyplot as plt
+import plotly.express as px
 
-# App title
-st.title("🥿 Shoe Sales Dashboard")
+# Streamlit App Title
+st.set_page_config(page_title="Shoe Sales Dashboard", layout="wide")
+st.title("Shoe Sales Dashboard")
+st.markdown("Visualize sales data by region and subsidiary")
 
-# File uploader
-uploaded_file = st.file_uploader("SHOES.csv", type="csv")
+# Load and clean the dataset
+@st.cache_data
+def load_data():
+    df = pd.read_csv("Dataset/SHOES.csv")  # Make sure this path is correct
+    df['Sales'] = df['Sales'].replace('[,$]', '', regex=True).astype(int)
+    df['Inventory'] = df['Inventory'].replace('[,$]', '', regex=True).astype(int)
+    df['Returns'] = df['Returns'].replace('[,$]', '', regex=True).astype(int)
+    return df
 
-# Load and clean the data if a file is uploaded
-if uploaded_file is not None:
-    try:
-        df = pd.read_csv(uploaded_file)
+df = load_data()
 
-        # Data cleaning
-        df['Sales'] = df['Sales'].replace('[, $]', '', regex=True).astype('int64')
-        df['Inventory'] = df['Inventory'].replace('[, $]', '', regex=True).astype('int64')
-        df['Returns'] = df['Returns'].replace('[, $]', '', regex=True).astype('int64')
+# Show available regions
+regions = df['Region'].unique()
+selected_region = st.selectbox("Select a Region", regions)
 
-        # Region dropdown
-        regions = df['Region'].unique()
-        selected_region = st.selectbox("🌍 Select a Region", regions)
+# Filter by region
+filtered_df = df[df['Region'] == selected_region]
 
-        # Filtered data
-        reg = df[df['Region'] == selected_region]
-
-        # Display barplot
-        st.subheader(f"📊 Sales by Subsidiary in {selected_region}")
-        fig, ax = plt.subplots(figsize=(10, 5))
-        sb.barplot(x='Subsidiary', y='Sales', data=reg, ax=ax)
-        ax.set_xlabel("Subsidiary")
-        ax.set_ylabel("Sales")
-        plt.xticks(rotation=45)
-        st.pyplot(fig)
-
-        # Optional: show filtered data
-        if st.checkbox("🔍 Show data table"):
-            st.dataframe(reg)
+# Show bar chart of Sales by Subsidiary
+fig = px.bar(
+    filtered_df,
+    x="Subsidiary",
+    y="Sales",
+    title=f"Sales by Subsidiary in {selected_region}",
+    labels={"Sales": "Sales ($)", "Subsidiary": "Subsidiary"},
+    color="Subsidiary"
+)
+fig.update_layout(xaxis_tickangle=-45)
+st.plotly_chart(fig)
