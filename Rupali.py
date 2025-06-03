@@ -10,7 +10,7 @@ st.markdown("Visualize sales data by region and subsidiary")
 # Load and clean the dataset
 @st.cache_data
 def load_data():
-    df = pd.read_csv("Dataset/SHOES.csv")  # Make sure this path is correct
+    df = pd.read_csv("SHOES.csv")  # Make sure this path is correct
     df['Sales'] = df['Sales'].replace('[,$]', '', regex=True).astype(int)
     df['Inventory'] = df['Inventory'].replace('[,$]', '', regex=True).astype(int)
     df['Returns'] = df['Returns'].replace('[,$]', '', regex=True).astype(int)
